@@ -1,29 +1,67 @@
 import React, { useState } from "react";
-import ShoppingList from "./ShoppingList";
-import itemData from "../data/items";
+import CategoryFilter from "./CategoryFilter";
+import NewTaskForm from "./NewTaskForm";
+import TaskList from "./TaskList";
+
+import { CATEGORIES, TASKS } from "../data";
+console.log("Here's the data you're working with");
+console.log({ CATEGORIES, TASKS });
 
 function App() {
-  const [items, setItems] = useState(itemData);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [tasks, setTasks] = useState(TASKS);
+  const [filterData, setFilterData] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
-  function handleDarkModeClick() {
-    setIsDarkMode((isDarkMode) => !isDarkMode);
-  }
+  // selectedCategory is for the className to change whenever Click to the btn
+  // filterData is to track the value of select---option
+  const handleClickFilter = (event, category) => {
+    setSelectedCategory(category);
+    setFilterData(event.target.value);
+  };
 
-  const appClass = isDarkMode ? "App dark" : "App light";
+  // filter data by category
+  const filteredTaskData = tasks.filter((task) => {
+    if (filterData === "All") {
+      return true;
+    } else {
+      return task.category === filterData;
+    }
+  });
 
-  // replace 'false' with a state variable that can be toggled between true and false
-  // this will be used for the Dark Mode Toggle feature
+  //**********FORM HANDLE**********
+
+  const onTaskFormSubmit = (newData) => {
+    setTasks((prev) => [...prev, newData]);
+  };
+  //***************
+
+  // Deelete btn
+  const handleDelete = (text) => {
+    console.log(text);
+    const deletedData = tasks.filter((task) => task.text !== text);
+    setTasks(deletedData);
+  };
 
   return (
-    <div className={appClass}>
-      <header>
-        <h2>Shopster</h2>
-        <button onClick={handleDarkModeClick}>
-          {isDarkMode ? "Dark" : "Light"} Mode
-        </button>
-      </header>
-      <ShoppingList items={items} />
+    <div className="App">
+      <h2>My tasks</h2>
+      <CategoryFilter
+        categories={CATEGORIES}
+        onClickFilterCategories={handleClickFilter}
+        selectedCategory={selectedCategory}
+      />
+      <NewTaskForm
+        categories={CATEGORIES}
+        // taskFormData={taskFormData}
+        // text={text}
+        // category={category}
+        // handleChanges={handleChanges}
+        onTaskFormSubmit={onTaskFormSubmit}
+        // handleText={handleText}
+        // handleCategory={handleCategory}
+        // handleSubmit={handleSubmit}
+      />
+      <TaskList tasks={filteredTaskData} handleDelete={handleDelete} />
     </div>
   );
 }
